@@ -1,0 +1,96 @@
+<h1>Candidates</h1>
+
+<form class="filters" aria-label="Filter and sort candidates">
+  <label>
+    Stage
+    <select [value]="stage()" (change)="stage.set($any($event.target).value)">
+      <option value="">All stages</option>
+      @for (s of stages; track s) {
+        <option [value]="s">{{ s }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    Role
+    <select [value]="role()" (change)="role.set($any($event.target).value)">
+      <option value="">All roles</option>
+      @for (r of roles.value(); track r) {
+        <option [value]="r">{{ r }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    Sort by
+    <select [value]="sort()" (change)="sort.set($any($event.target).value)">
+      <option value="date:desc">Newest first</option>
+      <option value="date:asc">Oldest first</option>
+      <option value="stage:asc">Stage, earliest first</option>
+      <option value="stage:desc">Stage, latest first</option>
+    </select>
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" [checked]="archived()" (change)="archived.set($any($event.target).checked)" />
+    Show archived only
+  </label>
+</form>
+
+@if (error()) {
+  <p class="notice error" role="alert">{{ error() }}</p>
+}
+
+@if (candidates.error()) {
+  <p class="notice error" role="alert">Could not load candidates. Is the API running?</p>
+} @else if (candidates.hasValue()) {
+  @if (candidates.value().length) {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Role</th>
+            <th scope="col">Stage</th>
+            <th scope="col">Source</th>
+            <th scope="col">Added</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of candidates.value(); track c.id) {
+            <tr>
+              <td>
+                <a [routerLink]="['/candidates', c.id]">{{ c.name }}</a>
+                <div class="muted">{{ c.email }}</div>
+              </td>
+              <td>{{ c.role }}</td>
+              <td>
+                <select
+                  #stageSelect
+                  class="stage"
+                  [attr.data-stage]="c.stage"
+                  [attr.aria-label]="'Stage for ' + c.name"
+                  (change)="moveTo(c, stageSelect)"
+                >
+                  @for (s of stages; track s) {
+                    <option [value]="s" [selected]="s === c.stage">{{ s }}</option>
+                  }
+                </select>
+              </td>
+              <td>{{ c.source ?? '—' }}</td>
+              <td class="nowrap">{{ c.createdAt | date: 'mediumDate' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (filtered()) {
+    <p class="notice">
+      No candidates match these filters.
+      <button type="button" class="link" (click)="clearFilters()">Clear filters</button>
+    </p>
+  } @else if (archived()) {
+    <p class="notice">No archived candidates.</p>
+  } @else {
+    <p class="notice">No candidates yet. <a routerLink="/candidates/new">Add the first one</a>.</p>
+  }
+} @else {
+  <p class="muted" role="status">Loading candidates…</p>
+}

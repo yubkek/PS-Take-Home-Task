@@ -1,0 +1,47 @@
+<section class="card summary" aria-labelledby="summary-title">
+  <div class="summary-head">
+    <h2 id="summary-title">AI summary</h2>
+    <button type="button" class="link" [disabled]="loading()" (click)="generate()">
+      {{ summary() || error() ? 'Regenerate' : 'Generate' }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="muted" role="status">Generating summary…</p>
+  }
+  @if (error()) {
+    <p class="notice error" role="alert">{{ error() }}</p>
+  }
+
+  @if (summary(); as s) {
+    @for (warning of s.warnings; track warning) {
+      <p class="notice warning">{{ warning }}</p>
+    }
+
+    @if (s.status === 'ok') {
+      <p class="headline">{{ s.headline }}</p>
+
+      @if (s.skills.length) {
+        <h3>Key skills</h3>
+        <ul class="chips">
+          @for (skill of s.skills; track $index) {
+            <li>{{ skill }}</li>
+          }
+        </ul>
+      }
+
+      @if (s.highlights.length) {
+        <h3>Experience highlights</h3>
+        <ul>
+          @for (highlight of s.highlights; track $index) {
+            <li>{{ highlight }}</li>
+          }
+        </ul>
+      }
+    }
+
+    @if (!s.model) {
+      <p class="muted small">Checked automatically on {{ s.generatedAt | date: 'medium' }}. No AI was used.</p>
+    }
+  }
+</section>
