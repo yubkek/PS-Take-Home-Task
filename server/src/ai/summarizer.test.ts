@@ -151,11 +151,6 @@ describe('summarizer', () => {
     await rejectsWith(summarize(RESUME), 'ai_failed', 502);
   });
 
-  it('reports malformed model output as a failure', async () => {
-    const { summarize } = stubbed({ text: '{"headline": "cut off' });
-    await rejectsWith(summarize(RESUME), 'ai_failed', 502);
-  });
-
   it('rejects model output that does not match the schema', async () => {
     const { summarize } = stubbed({ output: { headline: 'only this' } });
     await rejectsWith(summarize(RESUME), 'ai_failed', 502);

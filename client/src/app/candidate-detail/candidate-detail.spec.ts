@@ -67,7 +67,6 @@ describe('CandidateDetail documents', () => {
     const patch = http.expectOne('/api/candidates/7');
     expect(patch.request.body).toEqual({ resumeText: 'New resume' });
     patch.flush({ ...candidate, resumeText: 'New resume', summary: null });
-    await fixture.whenStable().catch(() => {});
     fixture.detectChanges();
     expect(el.textContent).not.toContain('Old headline');
 

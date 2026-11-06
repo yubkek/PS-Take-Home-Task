@@ -48,10 +48,12 @@ describe('CandidateForm', () => {
     type('name', 'Ada');
     type('email', 'ada@example.com');
     type('role', 'Engineer');
+    type('resumeText', 'Pasted resume');
     el.querySelector('form')!.dispatchEvent(new Event('submit'));
 
     const request = http.expectOne('/api/candidates');
     expect(request.request.body.name).toBe('Ada');
+    expect(request.request.body.resumeText).toBe('Pasted resume');
     request.flush({ id: 5 });
     await fixture.whenStable();
     expect(navigate).toHaveBeenCalledWith(['/candidates', 5]);
@@ -98,16 +100,6 @@ describe('CandidateForm', () => {
     const save = http.expectOne('/api/candidates');
     expect(save.request.body.resumeText).toBe('My resume');
     expect(save.request.body.coverLetterText).toBe('My letter');
-  });
-
-  it('accepts pasted resume text', async () => {
-    const { el, type } = await render();
-    type('name', 'Ada');
-    type('email', 'ada@example.com');
-    type('role', 'Engineer');
-    type('resumeText', 'Pasted resume');
-    el.querySelector('form')!.dispatchEvent(new Event('submit'));
-    expect(http.expectOne('/api/candidates').request.body.resumeText).toBe('Pasted resume');
   });
 
   it('removes a document and its file name, leaving the other alone', async () => {

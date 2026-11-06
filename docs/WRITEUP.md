@@ -65,7 +65,7 @@ If the AI call fails, the user sees a clear error and nothing is saved.
 - Jo Marsh (garbled) and Alex Byrne (empty): both were refused without calling the model.
 - Two flaws appeared. One run of Sam's summary added details that were not in the resume, though a later run did not. Tom Okafor's skills included something that is not a skill in both runs, so the output varies and still needs checking.
 
-There are 102 automated tests. None of them run in a real browser, which is why they did not catch the delete bug, so the main flows also need checking by hand.
+There are 98 automated tests. None of them run in a real browser, which is why they did not catch the delete bug, so the main flows also need checking by hand.
 
 ## Tradeoffs
 

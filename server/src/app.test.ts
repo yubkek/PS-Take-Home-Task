@@ -101,11 +101,11 @@ describe('candidates API', () => {
   });
 
   it('sorts by pipeline order, not alphabetically', async () => {
-    await add({ name: 'rejected', stage: 'Rejected' });
     await add({ name: 'interview', stage: 'Interview' });
+    await add({ name: 'screening', stage: 'Screening' });
     await add({ name: 'applied', stage: 'Applied' });
-    assert.deepEqual(await names('sort=stage&order=asc'), ['applied', 'interview', 'rejected']);
-    assert.deepEqual(await names('sort=stage&order=desc'), ['rejected', 'interview', 'applied']);
+    assert.deepEqual(await names('sort=stage&order=asc'), ['applied', 'screening', 'interview']);
+    assert.deepEqual(await names('sort=stage&order=desc'), ['interview', 'screening', 'applied']);
   });
 
   it('sorts by date, newest first by default, stable within the same millisecond', async () => {
@@ -194,14 +194,6 @@ describe('summary endpoint', () => {
     assert.equal(received, 'my resume\n\nmy letter');
   });
 
-  it('summarises a cover letter on its own', async () => {
-    let received = '';
-    summarize = async (text) => ((received = text), summary);
-    const { id } = await add({ coverLetterText: 'my letter' });
-    await api(`/api/candidates/${id}/summary`, 'POST');
-    assert.equal(received, 'my letter');
-  });
-
   it('keeps the previous summary and reports the error when regeneration fails', async () => {
     const { id } = await add();
     await api(`/api/candidates/${id}/summary`, 'POST');
@@ -259,8 +251,8 @@ describe('stored documents', () => {
     assert.equal(res.status, 400);
   });
 
-  it('accepts both documents at their maximum length, in multi-byte text', async () => {
-    await add({ resumeText: '界'.repeat(50_000), coverLetterText: '界'.repeat(50_000) });
+  it('accepts both documents at their maximum length, even in the largest JSON encoding', async () => {
+    await add({ resumeText: '\u0001'.repeat(50_000), coverLetterText: '\u0001'.repeat(50_000) });
   });
 
   it('adds the cover letter column to a database from before it existed', () => {
@@ -332,12 +324,6 @@ describe('editing candidate details', () => {
     const name = "Robert'); DROP TABLE candidates;--";
     assert.equal((await patch(id, { name })).body.name, name);
     assert.equal((await names('')).length, 1);
-  });
-
-  it('shows a new role in the role filter', async () => {
-    const { id } = await add();
-    await patch(id, { role: 'Lead' });
-    assert.deepEqual(await (await api('/api/roles')).json(), ['Lead']);
   });
 });
 

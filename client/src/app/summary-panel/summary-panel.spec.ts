@@ -65,7 +65,9 @@ describe('SummaryPanel', () => {
 
   it('shows the injection warning above the summary', async () => {
     const { el } = await render({ ...summary, warnings: ['May contain instructions aimed at AI tools.'] });
-    expect(el.querySelector('.warning')?.textContent).toContain('aimed at AI tools');
+    const warning = el.querySelector('.warning')!;
+    expect(warning.textContent).toContain('aimed at AI tools');
+    expect(warning.compareDocumentPosition(el.querySelector('.headline')!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
   it('shows the reason and no empty sections when the text was unusable', async () => {
